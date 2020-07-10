@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer" />
+    <title>노래방</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script type="text/javascript" id="www-widgetapi-script"
+        src="https://s.ytimg.com/yts/jsbin/www-widgetapi-vflEjhbFr/www-widgetapi.js" async=""></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <style>
+        body {
+            background: black;
+        }
+
+        .wrapper {
+            padding-bottom: 0px;
+            width: 100%;
+        }
+
+        .content {
+            width: 100%;
+        }
+
+        #sidebar {
+            background: #333;
+            padding: 5px;
+            width: 250px;
+            height: 100%;
+            top: 0;
+            right: -250px;
+            position: fixed;
+            color: white;
+        }
+
+        #sidebar>button {
+            background: #333;
+            position: absolute;
+            top: 70px;
+            right: 250px;
+            width: 52px;
+            height: 52px;
+            border: none;
+            padding: 0;
+        }
+
+        #sideTrigger>span {
+            width: 80%;
+            height: 2px;
+            margin: 5px auto;
+            display: block;
+            background: #555;
+            transition: all 0.8s cubic-bezier(0.810, -0.330, 0.345, 1.375);
+            transition-delay: 0.2s;
+        }
+
+        #sideTrigger.open>span:nth-child(1) {
+            transform: rotate(45deg) translate(2px, 2px);
+            margin: 0 auto;
+        }
+
+        #sideTrigger.open>span:nth-child(2) {
+            opacity: 0;
+            margin: 0;
+        }
+
+        #sideTrigger.open>span:nth-child(3) {
+            transform: rotate(-45deg) translate(1px, -1px);
+            margin: 0 auto;
+        }
+
+        .nextMusic {
+            font-size: 20px;
+            color: white;
+        }
+
+        .nextMusic>hr {
+            margin: 10px;
+        }
+
+        #screen {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: -99;
+        }
+
+        .glow {
+            animation: rainbow 5s infinite linear;
+        }
+
+        @keyframes rainbow {
+            0% {
+                color: red;
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px red, 0 0 20px red, 0 0 25px red, 0 0 30px red, 0 0 35px red;
+            }
+
+            10% {
+                color: orange;
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px orange, 0 0 20px orange, 0 0 25px orange, 0 0 30px orange, 0 0 35px orange;
+            }
+
+            23% {
+                color: yellow;
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px yellow, 0 0 20px yellow, 0 0 25px yellow, 0 0 30px yellow, 0 0 35px yellow;
+            }
+
+            36% {
+                color: yellowgreen;
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px yellowgreen, 0 0 20px yellowgreen, 0 0 25px yellowgreen, 0 0 30px yellowgreen, 0 0 35px yellowgreen;
+            }
+
+            49% {
+                color: green;
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px green, 0 0 20px green, 0 0 25px green, 0 0 30px green, 0 0 35px green;
+            }
+
+            62% {
+                color: blue;
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px blue, 0 0 20px blue, 0 0 25px blue, 0 0 30px blue, 0 0 35px blue;
+            }
+
+            74% {
+                color: indigo;
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px indigo, 0 0 20px indigo, 0 0 25px indigo, 0 0 30px indigo, 0 0 35px indigo;
+            }
+
+            86% {
+                color: purple;
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px purple, 0 0 20px purple, 0 0 25px purple, 0 0 30px purple, 0 0 35px purple;
+            }
+
+            100% {
+                color: red;
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px red, 0 0 20px red, 0 0 25px red, 0 0 30px red, 0 0 35px red;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <!-- Side Bar-->
+        <nav id="sidebar">
+            <button id="sideTrigger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <span style="margin-top: 5px; color: black;">
+                <input id="songName" type="text" placeholder="곡 검색" onkeydown="JavaScript:Enter_Check();">
+                <input type="button" value="검색" onclick="JavaScript:Search();">
+            </span>
+            <hr>
+            <div id="sidelist">
+                <ol id='select'>
+
+                </ol>
+            </div>
+            <hr>
+        </nav>
+        <!-- End Side Bar-->
+
+        <!-- Main Content -->
+        <div class="content" style="width: 100%;">
+            <div id="screen"></div>
+            <div class="nextMusic">
+                <hr>
+                <marquee><b><span id="musicList" class="glow"></span></b></marquee>
+                <hr>
+            </div>
+        </div>
+        <!-- End Main Content -->
+    </div>
+    <script>
+        /*******************************
+         * 전체 화면 설정
+         * Created 2020.07.09.
+         * Author: Jeong MinGyu
+         *******************************/
+        (() => {
+            document.addEventListener('keydown', function (e) {
+                if (e.keyCode == 122) { // F11
+                    setTimeout(() => {
+                        $('#screen').attr({
+                            "style": "width:100%; height:" + window.innerHeight + "px;"
+                        });
+                    }, 100);
+                }
+            });
+        })();
+
+        /*******************************
+         * 재생 목록
+         * Created 2020.07.09.
+         * Author: Jeong MinGyu
+         *******************************/
+        function SongInfo(title, address) {
+            this.title = title;
+            this.address = address;
+        }
+        var songQueue = [];
+
+        function SongInfoUpdate() {
+            if (songQueue.length == 0) {
+                $(() => {
+                    $("#musicList").html("곡을 추가 해주세요.");
+                    $("#select").html("<li>곡을 추가 해주세요.</li>");
+                });
+            } else {
+                var str = "";
+                var songTitle = [];
+
+                for (var i = 0; i < songQueue.length; i++) {
+                    songTitle.push(songQueue[i].title);
+                    str += "<li>" + songQueue[i].title + "</li>";
+                }
+                $("#musicList").html("선곡 큐: " + songTitle.join(", "));
+                $("#select").html(str);
+            }
+        }
+
+        /*******************************
+         * 곡 선택
+         * Created 2020.07.10.
+         * Author: Jeong MinGyu
+         *******************************/
+        document.getElementById("select").addEventListener('click', function (e) {
+            var target;
+            if (e.path.length == 10) {
+                target = e.path[1].id;
+            } else target = e.path[0].id;
+
+            var title = $("#" + target).text();
+            var address = $("#" + target).find('img').attr('alt');
+
+            console.log(title + " " + address);
+
+            songQueue.push(new SongInfo(title, address));
+
+            SongInfoUpdate();
+            PlaySong();
+        });
+
+        /*******************************
+         * 사이드 바 내 검색
+         * Created 2020.07.09.
+         * Author: Jeong MinGyu
+         *******************************/
+        var Search = () => {
+            const API_KEY = "your youtube API key";
+            $.ajax({
+                url: 'https://www.googleapis.com/youtube/v3/search?channelId=UCDqaUIUSJP5EVMEI178Zfag&key='+API_KEY+'&part=snippet&maxResults=5&q=' +
+                    encodeURI($('#songName').val() + " 노래방"),
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    var result = data;
+                    console.log(result.items);
+                    var str = "";
+                    for (var i = 0; i < 5; i++) {
+                        str += '<li id="songSelect' + i + '"><img src="' + result.items[i].snippet
+                            .thumbnails.default.url + '" alt="' + result.items[i].id.videoId +
+                            '"><br>' + result.items[i].snippet.title + "</li>";
+                    }
+                    $("#select").html(str);
+                    $('#songName').val('');
+                },
+                error: function (msg) {
+                    alert(msg);
+                    console.log('Error:' + msg);
+                }
+            });
+        };
+
+        var Enter_Check = () => {
+            if (event.keyCode != 13) {
+                return;
+            }
+            $.ajaxSetup({
+                cache: false
+            });
+
+            Search();
+        };
+
+        var player;
+        var fstPlay = true;
+
+        function PlaySong() {
+            SongInfoUpdate();
+            if (songQueue.length == 0) {
+                SongInfoUpdate();
+                $(() => {
+                    $('#screen').html("");
+                });
+                return;
+            }
+            if (songQueue.length == 1) {
+                if (fstPlay) {
+                    fstPlay = false;
+                    player = new YT.Player('screen', {
+                        height: window.innerHeight + "px;",
+                        width: '100%',
+                        videoId: songQueue[0].address,
+                        events: {
+                            'onReady': onPlayerReady,
+                            'onStateChange': onPlayerStateChange
+                        }
+                    });
+
+                    return;
+                } else {
+                    player.cueVideoById(songQueue[0].address, 0, "large");
+                    player.loadVideoById(songQueue[0].address, 0, "large");
+                }
+            }
+            if (player.getPlayerState() != 1) {
+                player.playVideo()
+            }
+        }
+
+        /*******************************
+         * 화면 구성 / 사이드바 처리
+         * Created 2020.07.09.
+         * Author: Jeong MinGyu
+         *******************************/
+        $(() => {
+            $('#screen').attr({
+                "style": "width:100%; height:" + window.innerHeight + "px;"
+            });
+            var duration = 300;
+
+            var $side = $('#sidebar');
+            var $sideBtn = $('#sideTrigger').on('click', function () {
+                $sideBtn.toggleClass('open');
+
+                if ($sideBtn.hasClass('open')) {
+                    $side.stop(true).animate({
+                        right: '0px'
+                    }, duration);
+                    $(".content").animate({
+                        "width": window.innerWidth - 250 + "px"
+                    }, duration);
+                } else {
+                    $side.stop(true).animate({
+                        right: '-250px'
+                    }, duration);
+                    $(".content").animate({
+                        "width": window.innerWidth + "px"
+                    }, duration);
+                }
+            });
+            SongInfoUpdate();
+        });
+
+        /*******************************
+         * 재생 종료시 다음 곡
+         * Created 2020.07.10.
+         * Author: Jeong MinGyu
+         *******************************/
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.ENDED) {
+                $(() => {
+                    $('#screen').html("");
+                });
+                songQueue.shift();
+
+                if (songQueue.length == 0) {
+                    SongInfoUpdate();
+                    return;
+                }
+
+                player.cueVideoById(songQueue[0].address, 0, "large");
+                player.loadVideoById(songQueue[0].address, 0, "large");
+                PlaySong();
+
+                SongInfoUpdate();
+            }
+        }
+
+        function onPlayerReady(event) {
+            event.target.playVideo();
+        }
+    </script>
+</body>
+
+</html>
