@@ -9,7 +9,7 @@
  * Author: Jeong MinGyu
  *******************************/
 var Search = () => {
-    const API_KEY = "your youtube API key";
+    const API_KEY = "AIzaSyDTGfPj4WN39YV1i9Wb9y5LDgMkGoH6boA";
     $.ajax({
         url: 'https://www.googleapis.com/youtube/v3/search?channelId=UCDqaUIUSJP5EVMEI178Zfag&key='+API_KEY+'&part=snippet&maxResults=5&q=' +
             encodeURI($('#songName').val() + " 노래방"),
