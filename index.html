@@ -81,8 +81,12 @@
         }
 
         .nextMusic {
+            margin: 15px auto;
+            width: 98%;
+            top: 15px;
             font-size: 20px;
             color: white;
+            background-color: rgba(42, 42, 42, 0.5);
         }
 
         .nextMusic>hr {
@@ -180,9 +184,7 @@
         <div class="content" style="width: 100%;">
             <div id="screen"></div>
             <div class="nextMusic">
-                <hr>
                 <marquee><b><span id="musicList" class="glow"></span></b></marquee>
-                <hr>
             </div>
         </div>
         <!-- End Main Content -->
@@ -248,16 +250,16 @@
                 target = e.path[1].id;
             } else target = e.path[0].id;
 
-            var title = $("#" + target).text();
+            var title = $("#" + target).text().replace("/\[[A-Z ]*\] /g","");
             var address = $("#" + target).find('img').attr('alt');
 
             songQueue.push(new SongInfo(title, address));
-
-            setTimeout(function(){
-                $("#musicList").html("곡 추가 : ", title);
-            }, 5000);
-            SongInfoUpdate();
             PlaySong();
+
+            $("#musicList").html("[추가] " + title + "이 추가 되었습니다.");
+            setTimeout(() => {
+                SongInfoUpdate();
+            }, 5000)
         });
 
         /*******************************
@@ -352,16 +354,17 @@
             var duration = 300;
 
             var $side = $('#sidebar');
+            var $sideTrig = $("#sideTrigger");
 
             $side.hover(function () {
-                $("#sideTrigger").addClass("open");
+                $sideTrig.addClass("open");
                 $side.stop(true).animate({
                     right: '0px'
                 }, duration)
                 $("#songName").focus();
             }, function () {
-                setTimeout(function () {
-                    $("#sideTrigger").removeClass("open");
+                setTimeout(() => {
+                    $sideTrig.removeClass("open");
                     $side.stop(true).animate({
                         right: '-250px'
                     }, duration * 1.5);
