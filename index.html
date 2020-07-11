@@ -12,10 +12,8 @@
 
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script src="./lib/js/qrcode.min.js"></script>
 
-    <script type="text/javascript" id="www-widgetapi-script"
-        src="https://s.ytimg.com/yts/jsbin/www-widgetapi-vflEjhbFr/www-widgetapi.js" async=""></script>
+    <script src="https://s.ytimg.com/yts/jsbin/www-widgetapi-vflEjhbFr/www-widgetapi.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <style>
@@ -32,6 +30,20 @@
             width: 100%;
         }
 
+        .nextMusic {
+            margin: 15px auto;
+            width: 98%;
+            top: 15px;
+            font-size: 20px;
+            color: white;
+            background-color: rgba(42, 42, 42, 0.5);
+        }
+        
+        .glow {
+            font-size: 40px;
+            animation: rainbow 5s infinite linear;
+        }
+
         #sidebar {
             background: #333;
             padding: 5px;
@@ -44,7 +56,7 @@
             z-index: 3;
         }
 
-        #sidebar>button {
+        #sideTrigger {
             background: #333;
             position: absolute;
             top: 110px;
@@ -53,6 +65,29 @@
             height: 52px;
             border: none;
             padding: 0;
+        }
+        
+        #screen {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: -99;
+        }
+
+        #arrow {
+            height: 150px;
+            width: 150px;
+            position: fixed;
+            top: 70px;
+            right: 70px;
+            bottom: 0;
+            z-index: -999;
+        }
+
+        .nextMusic>hr {
+            margin: 10px;
         }
 
         #sideTrigger>span {
@@ -78,33 +113,6 @@
         #sideTrigger.open>span:nth-child(3) {
             transform: rotate(-45deg) translate(1px, -1px);
             margin: 0 auto;
-        }
-
-        .nextMusic {
-            margin: 15px auto;
-            width: 98%;
-            top: 15px;
-            font-size: 20px;
-            color: white;
-            background-color: rgba(42, 42, 42, 0.5);
-        }
-
-        .nextMusic>hr {
-            margin: 10px;
-        }
-
-        #screen {
-            position: fixed;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            z-index: -99;
-        }
-
-        .glow {
-            font-size: 40px;
-            animation: rainbow 5s infinite linear;
         }
 
         @keyframes rainbow {
@@ -158,6 +166,8 @@
 
 <body>
     <div class="wrapper">
+        <img id="arrow"
+            src="https://mblogthumb-phinf.pstatic.net/MjAxOTAzMjhfMTYw/MDAxNTUzNzM4MjgyNTAy.ratDBXqa6iPKwmYkOZUDA5g8UNN2x7wFv5zfhc0NQJEg.Dwn4fDYZB7gXJKRgnw0Bpz4tIeCcr1rtfko0e9QKK0Ug.PNG.joodays/%25ED%2599%2594%25EC%2582%25B4%25ED%2591%259C_5.png?type=w800">
         <!-- Side Bar-->
         <nav id="sidebar">
             <button id="sideTrigger">
@@ -167,13 +177,13 @@
             </button>
 
             <span style="margin-top: 5px; color: black;">
-                <input id="songName" type="text" placeholder="곡 검색" onkeydown="JavaScript:Enter_Check();">
-                <input type="button" value="검색" onclick="JavaScript:Search();">
+                <input id="songName" type="text" placeholder="곡 검색" onkeydown="JavaScript:enterCheck();">
+                <input type="button" value="검색" onclick="JavaScript:search();">
             </span>
+
             <hr>
             <div id="sidelist">
                 <ol id='select'>
-
                 </ol>
             </div>
             <hr>
@@ -189,53 +199,53 @@
         </div>
         <!-- End Main Content -->
     </div>
+
     <script>
         /*******************************
          * 전체 화면 설정
          * Created 2020.07.09.
          * Author: Jeong MinGyu
          *******************************/
-        (() => {
-            document.addEventListener('keydown', function (e) {
-                if (e.keyCode == 122) { // F11
-                    setTimeout(() => {
-                        $('#screen').attr({
-                            "style": "width:100%; height:" + window.innerHeight +
-                                "px;"
-                        });
-                    }, 100);
-                }
-            });
-        })();
+        document.addEventListener('keydown', function (e) {
+            if (e.keyCode == 122) { // F11
+                setTimeout(() => {
+                    $('#screen').attr({
+                        "style": "width:100%; height:" + window.innerHeight +
+                            "px;"
+                    });
+                }, 100);
+            }
+        });
 
         /*******************************
          * 재생 목록
          * Created 2020.07.09.
          * Author: Jeong MinGyu
          *******************************/
+        var songQueue = [];
+
         function SongInfo(title, address) {
             this.title = title;
             this.address = address;
         }
-        var songQueue = [];
 
-        function SongInfoUpdate() {
+        function songInfoUpdate() {
             if (songQueue.length == 0) {
                 $(() => {
                     $("#musicList").html("곡을 추가 해주세요.");
                     $("#select").html("<li class='song'>곡을 추가 해주세요.</li>");
                 });
-            } else {
-                var str = "";
-                var songTitle = [];
-
-                for (var i = 0; i < songQueue.length; i++) {
-                    songTitle.push(songQueue[i].title);
-                    str += "<li class='song'>" + songQueue[i].title + "</li>";
-                }
-                $("#musicList").html("선곡 큐: " + songTitle.join(", "));
-                $("#select").html(str);
+                return;
             }
+            var str = "";
+            var songTitle = [];
+
+            for (var i = 0; i < songQueue.length; i++) {
+                songTitle.push(songQueue[i].title);
+                str += "<li class='song'>" + songQueue[i].title + "</li>";
+            }
+            $("#musicList").html("선곡 큐: " + songTitle.join(", "));
+            $("#select").html(str);
         }
 
         /*******************************
@@ -244,22 +254,21 @@
          * Author: Jeong MinGyu
          *******************************/
         document.getElementById("select").addEventListener('click', function (e) {
-            console.log(e);
             if (e.target.className == "song") return;
-            if (e.path.length == 10) {
-                target = e.path[1].id;
-            } else target = e.path[0].id;
 
-            var title = $("#" + target).text().replace("/\[[A-Z ]*\] /g","");
+            var target = e.path[0].id;
+            if (e.path.length == 10) target = e.path[1].id;
+
+            var title = $("#" + target).text().replace("/\[[A-Z ]*\] /g", "");
             var address = $("#" + target).find('img').attr('alt');
 
             songQueue.push(new SongInfo(title, address));
-            PlaySong();
+            playSong();
 
             $("#musicList").html("[추가] " + title + "이 추가 되었습니다.");
             setTimeout(() => {
-                SongInfoUpdate();
-            }, 5000)
+                songInfoUpdate();
+            }, 8000)
         });
 
         /*******************************
@@ -267,7 +276,7 @@
          * Created 2020.07.09.
          * Author: Jeong MinGyu
          *******************************/
-        var Search = () => {
+        function search() {
             const API_KEY = "AIzaSyDTGfPj4WN39YV1i9Wb9y5LDgMkGoH6boA";
             $.ajax({
                 url: 'https://www.googleapis.com/youtube/v3/search?channelId=UCDqaUIUSJP5EVMEI178Zfag&key=' +
@@ -277,16 +286,17 @@
                 dataType: 'json',
                 success: function (data) {
                     var result = data;
-                    console.log(result.items);
                     var str = "";
+
                     for (var i = 0; i < 5; i++) {
                         str += '<li id="songSelect' + i + '"><img src="' + result.items[i]
                             .snippet
                             .thumbnails.default.url + '" alt="' + result.items[i].id.videoId +
                             '"><br>' + result.items[i].snippet.title + "</li>";
                     }
+
                     $("#select").html(str);
-                    $('#songName').val('');
+                    $('#songName').val(''); // 검색창 초기화
                 },
                 error: function (msg) {
                     alert(msg);
@@ -295,10 +305,9 @@
             });
         };
 
-        var Enter_Check = () => {
-            if (event.keyCode != 13) {
-                return;
-            }
+        function enterCheck() {
+            if (event.keyCode != 13) return;
+
             $.ajaxSetup({
                 cache: false
             });
@@ -306,21 +315,28 @@
             Search();
         };
 
+        /*******************************
+         * 곡 재생 관리
+         * Created 2020.07.10.
+         * Author: Jeong MinGyu
+         *******************************/
         var player;
         var fstPlay = true;
 
-        function PlaySong() {
-            SongInfoUpdate();
+        function playSong() {
+            songInfoUpdate();
+
             if (songQueue.length == 0) {
-                SongInfoUpdate();
                 $(() => {
                     $('#screen').html("");
                 });
                 return;
             }
+
             if (songQueue.length == 1) {
                 if (fstPlay) {
                     fstPlay = false;
+
                     player = new YT.Player('screen', {
                         height: window.innerHeight + "px;",
                         width: '100%',
@@ -332,11 +348,12 @@
                     });
 
                     return;
-                } else {
-                    player.cueVideoById(songQueue[0].address, 0, "large");
-                    player.loadVideoById(songQueue[0].address, 0, "large");
                 }
+
+                player.cueVideoById(songQueue[0].address, 0, "large");
+                player.loadVideoById(songQueue[0].address, 0, "large");
             }
+
             if (player.getPlayerState() != 1) {
                 player.playVideo()
             }
@@ -356,13 +373,13 @@
             var $side = $('#sidebar');
             var $sideTrig = $("#sideTrigger");
 
-            $side.hover(function () {
+            $side.hover(() => {
                 $sideTrig.addClass("open");
                 $side.stop(true).animate({
                     right: '0px'
                 }, duration)
                 $("#songName").focus();
-            }, function () {
+            }, () => {
                 setTimeout(() => {
                     $sideTrig.removeClass("open");
                     $side.stop(true).animate({
@@ -370,7 +387,8 @@
                     }, duration * 1.5);
                 }, duration * 2);
             });
-            SongInfoUpdate();
+
+            playSong();
         });
 
         /*******************************
@@ -380,21 +398,8 @@
          *******************************/
         function onPlayerStateChange(event) {
             if (event.data == YT.PlayerState.ENDED) {
-                $(() => {
-                    $('#screen').html("");
-                });
                 songQueue.shift();
-
-                if (songQueue.length == 0) {
-                    SongInfoUpdate();
-                    return;
-                }
-
-                player.cueVideoById(songQueue[0].address, 0, "large");
-                player.loadVideoById(songQueue[0].address, 0, "large");
-                PlaySong();
-
-                SongInfoUpdate();
+                playSong();
             }
         }
 
