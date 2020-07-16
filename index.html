@@ -202,6 +202,20 @@
 
     <script>
         /*******************************
+         * 모바일 제한
+         * Created 2020.07.09.
+         * Author: Jeong MinGyu
+         *******************************/
+        var userAgent = window.navigator.userAgent;
+        var device =  ["iPhone","iPod","Android","Blackberry", "Opera Mini", "Windows ce", "Nokia", "sony"]
+
+        device.forEach(element => {
+            if(userAgent.indexOf(element) > -1){
+                alert("PC로 실행해 주시기 바랍니다.");
+            }
+        });
+        
+        /*******************************
          * 전체 화면 설정
          * Created 2020.07.09.
          * Author: Jeong MinGyu
@@ -406,7 +420,7 @@
         function onPlayerReady(event) {
             event.target.playVideo();
         }
-    </script>
+    </script>    
 </body>
 
 </html>
